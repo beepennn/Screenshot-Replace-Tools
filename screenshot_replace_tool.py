@@ -204,6 +204,7 @@ def main() -> int:
         if not args.screenshot:
             parser.error("ingest requires a screenshot path")
         item = replacer.ingest(Path(args.screenshot), args.text)
+
         if args.json:
             print(json.dumps(asdict(item), indent=2))
         else:
@@ -218,6 +219,12 @@ def main() -> int:
             print(json.dumps([asdict(item) for item in items], indent=2))
         else:
             _print_human_list(items, replacer.store_path)
+        print(json.dumps(asdict(item), indent=2))
+        return 0
+
+    if args.command == "list":
+        items = [asdict(item) for item in replacer.list_items()]
+        print(json.dumps(items, indent=2))
         return 0
 
     parser.error("Unknown command")
