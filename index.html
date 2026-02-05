@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Screenshot Replace Tool</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Screenshot → Task/Reminder/Note</h1>
+      <p class="sub">Runs entirely in your browser, so it works on GitHub Pages.</p>
+
+      <section class="card">
+        <h2>Ingest screenshot</h2>
+        <label class="field">Screenshot
+          <input id="fileInput" type="file" accept="image/*" />
+        </label>
+        <label class="field">Fallback text (optional)
+          <textarea id="fallbackText" rows="3" placeholder="e.g. Pay rent tomorrow"></textarea>
+        </label>
+        <div class="actions">
+          <button id="ingestBtn">Ingest</button>
+          <button id="clearBtn" class="ghost">Clear all</button>
+        </div>
+        <pre id="status">Ready.</pre>
+      </section>
+
+      <section class="card">
+        <div class="header-row">
+          <h2>Saved items</h2>
+          <button id="downloadBtn" class="ghost">Download JSON</button>
+        </div>
+        <ul id="itemList" class="items"></ul>
+      </section>
+    </main>
+  </body>
+</html>
