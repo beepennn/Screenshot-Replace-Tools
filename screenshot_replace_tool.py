@@ -154,12 +154,43 @@ class ScreenshotReplacer:
         return None
 
 
+def _print_human_item(item: CaptureItem) -> None:
+    print("Saved capture")
+    print(f"- type: {item.kind}")
+    print(f"- title: {item.title}")
+    print(f"- reminder: {item.reminder_at or 'none'}")
+    print(f"- source: {item.source}")
+
+
+def _print_human_list(items: list[CaptureItem], store: Path) -> None:
+    if not items:
+        print(f"No captured items yet in {store}.")
+        print("Tip: run ingest with --text, then run list again.")
+        return
+
+    print(f"Captured items in {store}:")
+    for idx, item in enumerate(items, start=1):
+        reminder = item.reminder_at or "none"
+        print(f"{idx}. [{item.kind}] {item.title} (reminder: {reminder})")
+        print(f"   source: {item.source}")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Replace screenshot hoarding with action items.")
+    parser = argparse.ArgumentParser(
+        description="Replace screenshot hoarding with action items.",
+        epilog=(
+            "Examples:\n"
+            "  python screenshot_replace_tool.py ingest shot.png --text 'Pay rent tomorrow'\n"
+            "  python screenshot_replace_tool.py list\n"
+            "  python screenshot_replace_tool.py list --json"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("command", choices=["ingest", "list"], help="Action to perform.")
     parser.add_argument("screenshot", nargs="?", help="Screenshot path for ingest command.")
     parser.add_argument("--text", default="", help="Fallback text when OCR is unavailable.")
     parser.add_argument("--store", default="captures.json", help="JSON store path.")
+    parser.add_argument("--json", action="store_true", help="Print raw JSON output.")
     return parser
 
 
@@ -173,6 +204,21 @@ def main() -> int:
         if not args.screenshot:
             parser.error("ingest requires a screenshot path")
         item = replacer.ingest(Path(args.screenshot), args.text)
+
+        if args.json:
+            print(json.dumps(asdict(item), indent=2))
+        else:
+            _print_human_item(item)
+            print(f"\nStored in: {replacer.store_path}")
+            print("Run: python screenshot_replace_tool.py list")
+        return 0
+
+    if args.command == "list":
+        items = replacer.list_items()
+        if args.json:
+            print(json.dumps([asdict(item) for item in items], indent=2))
+        else:
+            _print_human_list(items, replacer.store_path)
         print(json.dumps(asdict(item), indent=2))
         return 0
 
